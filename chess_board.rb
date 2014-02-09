@@ -31,7 +31,7 @@ class ChessBoard
     from_position_xy = [("a"..from_position[0]).to_a.length-1,8 - from_position[1].to_i] 
     to_position_xy = [("a"..to_position[0]).to_a.length-1,8 - to_position[1].to_i] 
 
-    #convert to [x,y] move
+    #convert to a2 a3 to [x,y] move
     #a2 a3 = [0, 1], a2 b2 = [1, 1]
     xy_to_get_there = [(from_position[0]..to_position[0]).to_a.length-1,from_position[1].to_i - to_position[1].to_i]
     
@@ -40,17 +40,94 @@ class ChessBoard
     #if it's the last iteration and there is a piece there, FIGHT!
     current_piece = @board[from_position_xy[1]][from_position_xy[0]]
     
-    puts from_position_xy.to_s
-    puts to_position_xy.to_s
-    puts xy_to_get_there.to_s
-    puts current_piece.name
+    puts "from positon: " + from_position_xy.to_s
+    puts "to positon: " + to_position_xy.to_s
+    puts "xy to get there: " + xy_to_get_there.to_s
+    puts "Current piece name: " + current_piece.name
+
 
     iterations = 0
-    while(current_piece.num_moves > iterations)
-      puts iterations
-    iterations += 1
+    current_position = from_position_xy
+
+    if can_piece_make_this_move?(from_position, to_position)
+      # incrementer = [(from_position_xy[0] - to_position[0])/current_piece.valid_moves[0][0],]
+      while(current_piece.num_moves > iterations)
+        #while moving current_position incremented by available moves
+        
+        puts "Iteration Number: " + iterations.to_s
+        
+        current_position = [current_position[0] + xy_to_get_there[0], current_position[1] + xy_to_get_there[1]]
+        
+        puts "This position: " + current_position.to_s
+        
+        #If the position does not have a piece there, we're okay
+        
+        if @board[current_position[1]][current_position[0]].non_piece?# puts @board[current_position[1]][current_position[0]].name
+          # puts "This is a valid move"
+        else
+          # puts "There is a piece there"
+        end
+        
+        #add one move to position, is this the final position
+
+        iterations += 1
+      end
+    else
+      return false
+    end
+    if current_piece.num_moves == iterations  
+      return true
+    else
+      return false
     end
   end
+
+    def can_piece_make_this_move?(from_position, to_position)
+    from_position_xy = [("a"..from_position[0]).to_a.length-1,8 - from_position[1].to_i] 
+    to_position_xy = [("a"..to_position[0]).to_a.length-1,8 - to_position[1].to_i] 
+
+    current_piece = @board[from_position_xy[1]][from_position_xy[0]]
+
+    puts from_position_xy
+    puts to_position_xy
+    puts current_piece.name
+
+    rise = from_position_xy[1] - to_position_xy[1]
+    run = from_position_xy[0] - to_position_xy[0]
+    puts (run).to_s + " / " + (rise).to_s
+
+    if run > 2 || run < -2
+      rise = rise / run.abs
+      run = run / run.abs
+    end
+
+    puts (run).to_s + " / " + (rise).to_s
+  end
+
+  # def can_piece_make_this_move?(from_position, to_position)
+  #   from_position_xy = [("a"..from_position[0]).to_a.length-1,8 - from_position[1].to_i] 
+  #   to_position_xy = [("a"..to_position[0]).to_a.length-1,8 - to_position[1].to_i] 
+
+  #   current_piece = @board[from_position_xy[1]][from_position_xy[0]]
+  #   # puts current_piece.name
+  #   current_piece.valid_moves.each do |m|
+  #     # puts from_position_xy.to_s
+  #     current_position = [from_position_xy[0] + m[0], from_position_xy[1] + m[1]]
+
+  #     iterations = 0
+  #     while(current_piece.num_moves > iterations)
+  #       if current_position == to_position_xy
+  #         # puts "BAM"
+  #         return true
+  #       end
+  #       # puts "current position: " + current_position.to_s
+  #       current_position = [current_position[0] + m[0], current_position[1] + m[1]]
+        
+  #       iterations += 1
+  #     end
+  #   end
+  #   return false
+  # end
 
   def create_pieces
     #rooks
@@ -73,8 +150,8 @@ class ChessBoard
     @pieces["wK"] = ChessPiece.new("wK", [[0,1], [1,0], [0,-1], [-1,0], [1,1], [1,-1], [-1,-1], [-1,1]], 1, false)
 
     #pawn
-    @pieces["bP"] = ChessPiece.new("bP", [[1,1], [1,-1], [-1,-1], [-1,1]], 2, false)
-    @pieces["wP"] = ChessPiece.new("wP", [[1,1], [1,-1], [-1,-1], [-1,1]], 2, false)
+    @pieces["bP"] = ChessPiece.new("bP", [[0,1]], 2, false)
+    @pieces["wP"] = ChessPiece.new("wP", [[0,-1]], 2, false)
 
     #empty space
     @pieces["--"] = ChessPiece.new("--", [], 0, false)
@@ -84,9 +161,10 @@ class ChessBoard
   #Display methods
   def display_board
     count = 8
-    puts "  a  b  c  d  e  f  g  h"
+    puts "    a  b  c  d  e  f  g  h"
+    puts "    0  1  2  3  4  5  6  7"
     @board.each do |b|
-      print count.to_s + " "
+      print count.to_s + " " + (8-count).to_s + " "
       b.each do |sb|
         print sb.name + " "
       end

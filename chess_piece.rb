@@ -25,5 +25,9 @@ class ChessPiece
   def valid_moves
     @valid_moves
   end
-  
+
+  def non_piece?
+    return true if self.name == "--"
+    return false
+  end
 end
